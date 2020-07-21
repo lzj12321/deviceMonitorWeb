@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf8">
+        <link rel="stylesheet" href="./robotMonitor.css">
+    </head>
+    <body background="./timg.jpg">
+
+        <h1>Robot Monitor</h1>
+        <div class='selector'>
+            <input type="date" class="dateSelector">
+            <select class='robotSelector'>
+                <option>test</option>
+                <option>test</option>
+            </select>
+            <input type="button" class='confirmButton' value="Confirm" onclick="confirmClicked()">
+        </div>
+        <br/>
+        <div class='canvasDiv'>
+            <canvas class='_canvas' id='_canvas'>
+            </canvas>
+        </div>
+
+        <div class='tableDiv'>
+            <table class='_dataTable'></table>
+        </div>
+
+        <script type="text/javascript" src='../jquery.js'></script>
+        <script type="text/javascript" src='./robotMonitor.js'></script>
+        <script>
+            window.onload=initial();
+        </script>
+    </body>
+</html>

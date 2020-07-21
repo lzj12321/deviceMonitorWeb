@@ -1,0 +1,43 @@
+h1{
+    font-size: 70px;
+    color: red;
+    text-align: center;
+}
+
+body{
+    /* background:; */
+}
+
+._canvas{
+    border: red 1px solid;
+    width: 600px;
+    height: 600px;
+    margin-left: 100px;
+}
+
+.dateSelector{
+    margin-right: 30px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.robotSelector{
+    /* text-align: center; */
+    /* margin: 0 auto; */
+    margin-right: 30px;
+    font-size: 33px;
+    font-weight: bold;
+}
+
+.confirmButton{
+    margin-right: 30px;
+    font-size: 30px;
+    font-weight: bold;
+}
+.selector{
+    margin-left: 100px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+
