@@ -4,14 +4,13 @@ h1{
     text-align: center;
 }
 
-body{
-    /* background:; */
-}
 
 ._canvas{
-    border: red 1px solid;
-    width: 600px;
-    height: 600px;
+    /* border: red 1px solid; */
+    border-bottom:darkblue 2px solid;
+    border-left: darkblue 2px solid;
+    /* width: 1000px; */
+    /* height: 800px; */
     margin-left: 100px;
 }
 
