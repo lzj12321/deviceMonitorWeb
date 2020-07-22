@@ -2,11 +2,10 @@ document.write("<script language=javascript src='./canvasDraw.js'></script>");
 
 
 function confirmClicked(){
-    setInterval(() => {
-        
-    }, 200);
-    $('._canvas').css('display','block');
-    $('.tableDiv').css('display','block');
+    var showTime=300;
+    $('._canvas').hide(showTime);
+    $('.tableDiv').hide(showTime);
+    var _flag=true;
     var _date=$('.dateSelector').val();
     var _robotSerial=$('.robotSelector').val().trim();
     var getDataUrl='./robotMonitor.php?action=getRobotData';
@@ -16,9 +15,15 @@ function confirmClicked(){
     var _times=new Array();
     var __stateElaspe=new Array();
     $.ajaxSetup({
-            async : false  
+            async : false
         });
     $.post(getDataUrl,{date:_date,robotSerial:_robotSerial},function(data){
+        if(data==0){
+            $('._canvas').hide(showTime);
+            $('.tableDiv').hide(showTime);
+            _flag=false;
+            return;
+        }
         var _data=$.parseJSON(data);
         for(var i=0;i<_data.length;++i){
             var device=_data[i]['robotSerial'];
@@ -38,6 +43,10 @@ function confirmClicked(){
             }
         }
     });
+    if(!_flag)
+    {
+        return;
+    }
 
     var __states=new Array();
     var __stateTime=new Array();
@@ -52,6 +61,8 @@ function confirmClicked(){
     });
     drawDataDiagram(__stateTime,__states);
     refreshDataTable(_states,_times,__stateElaspe,_device);
+    $('._canvas').show(showTime);
+    $('.tableDiv').show(showTime);
 }
 
 function initial(){
@@ -64,8 +75,6 @@ function initial(){
             $('.robotSelector').append('<option value='+_robotSerials[i]+'>'+_robotSerials[i]+'</option>');
         }
     })
-
-    // confirmClicked();
 }
 
 function refreshDataTable(states,time,elaspeTime,device){

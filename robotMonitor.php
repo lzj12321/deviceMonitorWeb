@@ -34,7 +34,11 @@ function getRobotData(){
     while ($row = $_result->fetch_assoc()){
         $data[] = $row;
     }
-    echo json_encode($data);
+    if(sizeof($data)==0){
+        echo 0;
+    }else{
+        echo json_encode($data);
+    }
     // echo $_result;
     exit();
 }
@@ -52,13 +56,17 @@ function getRobotStateTimeData(){
         $data[] = $row;
     }
     // echo $sql;
-    echo json_encode($data);
+    if(sizeof($data)==0){
+        echo 0;
+    }else{
+        echo json_encode($data);
+    }
     // echo $_result;
     exit();
 }
 
 function execSql($sql){
-    $mysqli = new mysqli('127.0.0.1','root','123456','robot');
+    $mysqli = new mysqli('127.0.0.1','lzj','123456','robot');
     $result = $mysqli->query($sql);
     $mysqli->close();
     return $result;
