@@ -1,36 +1,12 @@
 document.write("<script language=javascript src='./canvasDraw.js'></script>");
 
-function initial(){
-    var initDataUrl='./robotMonitor.php?action=initData';
-    $.get(initDataUrl,function(data){
-        var _robotSerials=$.parseJSON(data);
-        $('.robotSelector').append("<option value='     '></option>");
-        for(var i=0;i<_robotSerials.length;++i)
-        {
-            $('.robotSelector').append('<option value='+_robotSerials[i]+'>'+_robotSerials[i]+'</option>');
-        }
-    })
-}
-
-function refreshDataTable(states,time,elaspeTime,device){
-    // $('._dataTable').empty();
-
-    var dataTable=$('._dataTable');
-    $('tr:gt(0)').remove();
-    for(var i=0;i<states.length;++i){
-        var _row='<tr>';
-        _row+='<td>'+(i+1).toString()+'</td>';
-        _row+='<td>'+device[i]+'</td>';
-        _row+='<td>'+states[i]+'</td>';
-        _row+='<td>'+time[i]+'</td>';
-        _row+='<td>'+elaspeTime[i]+'</td>';
-        _row+='</tr>';
-        dataTable.append(_row);
-    }
-}
-
 
 function confirmClicked(){
+    setInterval(() => {
+        
+    }, 200);
+    $('._canvas').css('display','block');
+    $('.tableDiv').css('display','block');
     var _date=$('.dateSelector').val();
     var _robotSerial=$('.robotSelector').val().trim();
     var getDataUrl='./robotMonitor.php?action=getRobotData';
@@ -56,7 +32,6 @@ function confirmClicked(){
                 var stopDateTime=new Date(_data[i+1]['time']);
                 var _elaspe=stopDateTime-startDateTime;
                 __stateElaspe.push((_elaspe/60000).toFixed(2));
-                // alert(_elaspe);
             }
             else{
                 __stateElaspe.push('......');
@@ -77,6 +52,35 @@ function confirmClicked(){
     });
     drawDataDiagram(__stateTime,__states);
     refreshDataTable(_states,_times,__stateElaspe,_device);
+}
+
+function initial(){
+    var initDataUrl='./robotMonitor.php?action=initData';
+    $.get(initDataUrl,function(data){
+        var _robotSerials=$.parseJSON(data);
+        $('.robotSelector').append("<option value='     '></option>");
+        for(var i=0;i<_robotSerials.length;++i)
+        {
+            $('.robotSelector').append('<option value='+_robotSerials[i]+'>'+_robotSerials[i]+'</option>');
+        }
+    })
+
+    // confirmClicked();
+}
+
+function refreshDataTable(states,time,elaspeTime,device){
+    var dataTable=$('._dataTable');
+    $('tr:gt(0)').remove();
+    for(var i=0;i<states.length;++i){
+        var _row='<tr>';
+        _row+='<td>'+(i+1).toString()+'</td>';
+        _row+='<td>'+device[i]+'</td>';
+        _row+='<td>'+states[i]+'</td>';
+        _row+='<td>'+time[i]+'</td>';
+        _row+='<td>'+elaspeTime[i]+'</td>';
+        _row+='</tr>';
+        dataTable.append(_row);
+    }
 }
 
 

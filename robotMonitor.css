@@ -4,8 +4,12 @@ h1{
     text-align: center;
 }
 
+.canvasDiv{
+    /* visibility: hidden; */
+}
 ._canvas{
     /* border:darkblue 5px solid; */
+    display: none;
     border-bottom:darkblue 5px solid;
     border-left: darkblue 5px solid;
     /* width: 1000px; */
@@ -25,6 +29,7 @@ h1{
 .selectorDiv{
     position: absolute;
     left: 650px;
+    top:400px
     /* align-items: center; */
     /* align-content: center; */
     /* text-align: center; */
@@ -34,6 +39,7 @@ h1{
 }
 
 .tableDiv{
+    display: none;
     position: absolute;
     left: 1000px;
     top: 350px;
