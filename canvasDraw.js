@@ -19,10 +19,14 @@ function drawDataDiagram(data,flag){
     var maxData=0;
     for(var i=0;i<data.length;++i){
         if(maxData<data[i]){
-                maxData=data[i];
+            maxData=data[i];
         }
     }
     var dataSize=data.length;
+    if(dataSize<4)
+    {
+        dataSize=4;
+    }
     var _coorX=0;
     var _coorY=_coorH;
     var _rate=(_coorH-50)/maxData;
@@ -33,7 +37,7 @@ function drawDataDiagram(data,flag){
     }
     var gap=parseInt((_coorW-10)/dataSize);
     var _width=gap/2;
-    ctx.font="8px Arial";
+    ctx.font="25px Arial";
     for(var i=0;i<data.length;++i)
     {
         ctx.fillStyle='blue';
@@ -45,8 +49,6 @@ function drawDataDiagram(data,flag){
         ctx.strokeStyle='red';
         ctx.fillText(data[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorY-_data[i]-10,_width);
         txtLength=ctx.measureText(flag[i]).width;
-        ctx.fillStyle='black';
-        ctx.strokeStyle='black';
         ctx.fillText(flag[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorH-5,_width);
     }
 }

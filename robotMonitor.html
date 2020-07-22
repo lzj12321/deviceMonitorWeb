@@ -4,10 +4,10 @@
         <meta charset="utf8">
         <link rel="stylesheet" href="./robotMonitor.css">
     </head>
-    <body>
+    <body background="./timg.jpg">
 
         <h1>Robot Monitor</h1>
-        <div class='selector'>
+        <div class='selectorDiv'>
             <input type="date" class="dateSelector">
             <select class='robotSelector'>
             </select>
@@ -20,7 +20,15 @@
         </div>
 
         <div class='tableDiv'>
-            <table class='_dataTable'></table>
+            <table class='_dataTable'>
+                <tr>
+                    <th style="width: 100px;">id</th>
+                    <th style="width: 100px;">device</th>
+                    <th style="width: 100px;">state</th>
+                    <th style="width: 300px;">time</th>
+                    <th style="width: 170px;">elaspe(min)</th>
+                </tr>
+            </table>
         </div>
 
         <script type="text/javascript" src='./jquery.js'></script>

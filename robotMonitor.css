@@ -1,17 +1,54 @@
 h1{
-    font-size: 70px;
+    font-size: 90px;
     color: red;
     text-align: center;
 }
 
-
 ._canvas{
-    /* border: red 1px solid; */
-    border-bottom:darkblue 2px solid;
-    border-left: darkblue 2px solid;
+    /* border:darkblue 5px solid; */
+    border-bottom:darkblue 5px solid;
+    border-left: darkblue 5px solid;
     /* width: 1000px; */
     /* height: 800px; */
     margin-left: 100px;
+    position: absolute;
+    top: 300px;
+}
+
+._dataTable{
+    border: 3px blue solid;
+    font-weight: bold;
+    font-size: 25px;
+    border-collapse: collapse;
+}
+
+.selectorDiv{
+    position: absolute;
+    left: 650px;
+    /* align-items: center; */
+    /* align-content: center; */
+    /* text-align: center; */
+    /* -moz-box-align: center; */
+    /* -webkit-box-align: center; */
+    /* margin: 0 auto; */
+}
+
+.tableDiv{
+    position: absolute;
+    left: 1000px;
+    top: 350px;
+}
+
+th{
+    border: blue 2px solid;
+    font-size: 30px;
+    color:royalblue;
+}
+
+td,tr{
+    text-align: center;
+    border: 2px blue solid;
+    color: chocolate;
 }
 
 .dateSelector{

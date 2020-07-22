@@ -8,6 +8,9 @@ switch($action){
     case 'getRobotData':
         getRobotData();
     break;
+    case 'getRobotStateTimeData':
+        getRobotStateTimeData();
+    break;
 }
 
 function initData(){
@@ -26,7 +29,7 @@ function initData(){
 function getRobotData(){
     $date=$_POST['date'];
     $robotSerial=$_POST['robotSerial'];
-    $sql='select robotState,time from robotMonitorLog where robotSerial=\''.$robotSerial.'\' and time like \''.$date.'%\';';
+    $sql='select robotSerial, robotState, time from robotMonitorLog where robotSerial like \''.$robotSerial.'%\' and time like \''.$date.'%\' order by robotSerial;';
     $_result=execSql($sql);
     while ($row = $_result->fetch_assoc()){
         $data[] = $row;
@@ -36,10 +39,29 @@ function getRobotData(){
     exit();
 }
 
+function getRobotStateTimeData(){
+    $date=$_POST['date'];
+    // echo $date;
+    // exit();
+    $robotSerial=$_POST['robotSerial'];
+    $sql='select robotState,count(*) as time from robotMonitorLog where robotSerial like \''.$robotSerial.'%\' and time like \''.$date.'%\' group by robotState;';
+    // echo $sql;
+    // exit();
+    $_result=execSql($sql);
+    while ($row = $_result->fetch_assoc()){
+        $data[] = $row;
+    }
+    // echo $sql;
+    echo json_encode($data);
+    // echo $_result;
+    exit();
+}
+
 function execSql($sql){
-    $mysqli = new mysqli('127.0.0.1','lzj','123456','robot');
+    $mysqli = new mysqli('127.0.0.1','root','123456','robot');
     $result = $mysqli->query($sql);
     $mysqli->close();
     return $result;
 }
+
 ?>

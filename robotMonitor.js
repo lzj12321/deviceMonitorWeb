@@ -1,9 +1,10 @@
-// document.write("<script language=javascript src='./canvasDraw.js'></script>");
+document.write("<script language=javascript src='./canvasDraw.js'></script>");
 
 function initial(){
     var initDataUrl='./robotMonitor.php?action=initData';
     $.get(initDataUrl,function(data){
         var _robotSerials=$.parseJSON(data);
+        $('.robotSelector').append("<option value='     '></option>");
         for(var i=0;i<_robotSerials.length;++i)
         {
             $('.robotSelector').append('<option value='+_robotSerials[i]+'>'+_robotSerials[i]+'</option>');
@@ -11,69 +12,71 @@ function initial(){
     })
 }
 
+function refreshDataTable(states,time,elaspeTime,device){
+    // $('._dataTable').empty();
+
+    var dataTable=$('._dataTable');
+    $('tr:gt(0)').remove();
+    for(var i=0;i<states.length;++i){
+        var _row='<tr>';
+        _row+='<td>'+(i+1).toString()+'</td>';
+        _row+='<td>'+device[i]+'</td>';
+        _row+='<td>'+states[i]+'</td>';
+        _row+='<td>'+time[i]+'</td>';
+        _row+='<td>'+elaspeTime[i]+'</td>';
+        _row+='</tr>';
+        dataTable.append(_row);
+    }
+}
+
 
 function confirmClicked(){
-    // alert('test button');
     var _date=$('.dateSelector').val();
-    var _robotSerial=$('.robotSelector').val();
-    // alert(_date);
-    // alert(_robotSerial);
+    var _robotSerial=$('.robotSelector').val().trim();
     var getDataUrl='./robotMonitor.php?action=getRobotData';
-    // alert(getDataUrl);
+    var getStateTimeDataUrl='./robotMonitor.php?action=getRobotStateTimeData';
+    var _device=new Array();
+    var _states=new Array();
+    var _times=new Array();
+    var __stateElaspe=new Array();
+    $.ajaxSetup({
+            async : false  
+        });
     $.post(getDataUrl,{date:_date,robotSerial:_robotSerial},function(data){
         var _data=$.parseJSON(data);
         for(var i=0;i<_data.length;++i){
-            // alert(_data[i]['robotState']);
-            alert(_data[i]['time']);
+            var device=_data[i]['robotSerial'];
+            var __time=_data[i]['time'];
+            var __state=_data[i]['robotState'];
+            _times.push(__time);
+            _states.push(__state);
+            _device.push(device);
+            if(i!=_data.length-1&&device==_data[i+1]['robotSerial']){
+                var startDateTime=new Date(__time);
+                var stopDateTime=new Date(_data[i+1]['time']);
+                var _elaspe=stopDateTime-startDateTime;
+                __stateElaspe.push((_elaspe/60000).toFixed(2));
+                // alert(_elaspe);
+            }
+            else{
+                __stateElaspe.push('......');
+            }
         }
-        // alert($.parseJSON(data)[1]['robotState']);
     });
-    var data=[10,111,34];
-    var flag=['STOP','PAUSE','OFFLINE'];
-    drawDataDiagram(data,flag);
-}
 
-
-
-function drawDataDiagram(data,flag){
-    var _canvas=document.getElementById("_canvas");
-    var _coorW=_canvas.width;
-    var _coorH=_canvas.height;
-    // alert(_coorW);
-    // alert(_coorH);
-    var ctx=_canvas.getContext("2d");
-    ctx.clearRect(0,0,_coorW,_coorH);
-    var maxData=0;
-    for(var i=0;i<data.length;++i){
-        if(maxData<data[i]){
-            maxData=data[i];
+    var __states=new Array();
+    var __stateTime=new Array();
+    $.post(getStateTimeDataUrl,{date:_date,robotSerial:_robotSerial},function(result){
+        var _data=$.parseJSON(result);
+        for(var i=0;i<_data.length;++i){
+            var __time=_data[i]['time'];
+            var __state=_data[i]['robotState'];
+            __states.push(__state);
+            __stateTime.push(parseInt(__time));
         }
-    }
-    var dataSize=data.length;
-    var _coorX=0;
-    var _coorY=_coorH;
-    var _rate=(_coorH-50)/maxData;
-    var _data=[];
-    for(var i=0;i<data.length;++i){
-        var _d=parseInt(data[i]*_rate);
-        _data.push(_d);
-    }
-    var gap=parseInt((_coorW-10)/dataSize);
-    var _width=gap/2;
-    ctx.font="25px Arial";
-    for(var i=0;i<data.length;++i)
-    {
-        ctx.fillStyle='blue';
-        ctx.strokeStyle='blue';
-        ctx.fillRect(_coorX+gap*(i+1)-_width,_coorY-_data[i],_width,_data[i]);
-        ctx.strokeRect(_coorX+gap*(i+1)-_width,_coorY-_data[i],_width,_data[i]);
-        var txtLength=ctx.measureText(data[i]).width;
-        ctx.fillStyle='red';
-        ctx.strokeStyle='red';
-        ctx.fillText(data[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorY-_data[i]-10,_width);
-        txtLength=ctx.measureText(flag[i]).width;
-        // ctx.fillStyle='black';
-        // ctx.strokeStyle='black';
-        ctx.fillText(flag[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorH-5,_width);
-    }
+    });
+    drawDataDiagram(__stateTime,__states);
+    refreshDataTable(_states,_times,__stateElaspe,_device);
 }
+
+
