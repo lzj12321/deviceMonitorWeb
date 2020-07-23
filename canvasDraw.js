@@ -11,6 +11,7 @@ function drawCoordinateFrame(x,y,w,h){
 }
 
 function drawDataDiagram(data,flag){
+    var color=['red','yellow','blue'];
     var _canvas=document.getElementById("_canvas");
     var _coorW=_canvas.width;
     var _coorH=_canvas.height;
@@ -40,13 +41,14 @@ function drawDataDiagram(data,flag){
     ctx.font="30px Arial";
     for(var i=0;i<data.length;++i)
     {
-        ctx.fillStyle='blue';
-        ctx.strokeStyle='blue';
+
+        ctx.fillStyle=color[i];
+        ctx.strokeStyle=color[i];
         ctx.fillRect(_coorX+gap*(i+1)-_width,_coorY-_data[i],_width,_data[i]);
         ctx.strokeRect(_coorX+gap*(i+1)-_width,_coorY-_data[i],_width,_data[i]);
         var txtLength=ctx.measureText(data[i]).width;
-        ctx.fillStyle='red';
-        ctx.strokeStyle='red';
+        ctx.fillStyle='green';
+        ctx.strokeStyle='green';
         ctx.fillText(data[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorY-_data[i]-10,_width);
         txtLength=ctx.measureText(flag[i]).width;
         ctx.fillText(flag[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorH-5,_width);

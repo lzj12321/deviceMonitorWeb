@@ -132,16 +132,17 @@ function calcPieChart(states,elaspe){
     for(var i=0;i<data.length;++i){
         data[i].value=parseFloat(data[i].value)/totalElaspe;
     }
-   var canvas = document.getElementById("pieChartCanvas");
+    var canvas = document.getElementById("pieChartCanvas");
     //获取上下文
-   var ctx = canvas.getContext("2d");
-   var _coorW=canvas.width;
+    var ctx = canvas.getContext("2d");
+    var _coorW=canvas.width;
     var _coorH=canvas.height;
     ctx.clearRect(0,0,_coorW,_coorH);
-   //画图
+    //画图
     var x0  =_coorW/2,y0 = _coorH/2+70;//圆心
-    var x,y;//文字放置位置
+    var x=700;
     var radius = 150;
+    var y=y0-radius;//文字放置位置
     var tempAngle = -90;//画圆的起始角度
     for(var i = 0;i<data.length;i++){
         // alert('test');
@@ -153,8 +154,8 @@ function calcPieChart(states,elaspe){
         var angle = data[i].value*360;
         var endAngle = (tempAngle+angle)*Math.PI/180;//结束弧度
         var textAngle = tempAngle + 0.5*angle;//文字放的角度
-        x = x0 + Math.cos(textAngle*Math.PI/180)*(radius+20);//文字放的X轴
-        y = y0 + Math.sin(textAngle*Math.PI/180)*(radius+20);//文字放的Y轴
+        // x = x0 + Math.cos(textAngle*Math.PI/180)*(radius+20);//文字放的X轴
+        // y = y0 + Math.sin(textAngle*Math.PI/180)*(radius+20);//文字放的Y轴
         //如果文字在圆形的左侧，那么让文字 对齐方式为 文字结尾对齐当前坐标。
         if( textAngle > 90 && textAngle < 270 ){
             ctx.textAlign = 'end';
@@ -162,7 +163,12 @@ function calcPieChart(states,elaspe){
         ctx.fillStyle = data[i].color;
         var text = data[i].state + " "+ (data[i].value*100).toFixed(2)+"%";
         ctx.font='30px Arial';
+        // if(data[i].state=='stop'){
+        //     // alert(x);
+        //     alert(x0);
+        // }
         ctx.fillText(text,x,y);
+        y=y+50;
         ctx.beginPath();
         ctx.moveTo(x0,y0);
         ctx.arc(x0,y0,radius,startAngle,endAngle);
