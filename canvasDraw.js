@@ -37,7 +37,7 @@ function drawDataDiagram(data,flag){
     }
     var gap=parseInt((_coorW-10)/dataSize);
     var _width=gap/2;
-    ctx.font="25px Arial";
+    ctx.font="30px Arial";
     for(var i=0;i<data.length;++i)
     {
         ctx.fillStyle='blue';

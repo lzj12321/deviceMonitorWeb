@@ -11,16 +11,28 @@ switch($action){
     case 'getRobotStateTimeData':
         getRobotStateTimeData();
     break;
+    case 'getServerTime':
+        getServerTime();
+    break;
+}
+
+function getServerTime(){
+    $sql='select current_timestamp as currTime';
+    $result=execSql($sql);
+    echo $result->fetch_assoc()['currTime'];
 }
 
 function initData(){
-    // echo 'test';
-    // exit();
     $sql='select distinct robotSerial from robotMonitorLog';
     $_result=execSql($sql);
-    // echo $_result;
     while ($row = $_result->fetch_assoc()){
-        $data[] = $row['robotSerial'];
+        $data[0][] = $row['robotSerial'];
+    }
+
+    $sql='select distinct workshop from robotMonitorLog';
+    $_result=execSql($sql);
+    while ($row = $_result->fetch_assoc()){
+        $data[1][] = $row['workshop'];
     }
     echo json_encode($data);
     exit();
@@ -29,7 +41,18 @@ function initData(){
 function getRobotData(){
     $date=$_POST['date'];
     $robotSerial=$_POST['robotSerial'];
-    $sql='select robotSerial, robotState, time from robotMonitorLog where robotSerial like \''.$robotSerial.'%\' and time like \''.$date.'%\' order by robotSerial;';
+    $workshop=$_POST['workshop'];
+    $sql='select robotSerial,robotState,time,workshop from robotMonitorLog where 0=0 ';
+    if($robotSerial!=''){
+        $sql=$sql.' and robotSerial=\''.$robotSerial.'\' ';
+    }
+    if($workshop!=''){
+        $sql=$sql.' and workshop=\''.$workshop.'\' ';
+    }
+    $sql=$sql.' and time like \''.$date.'%\' order by robotSerial,SN asc';
+    // echo $sql;
+    // exit();
+
     $_result=execSql($sql);
     while ($row = $_result->fetch_assoc()){
         $data[] = $row;
@@ -45,10 +68,18 @@ function getRobotData(){
 
 function getRobotStateTimeData(){
     $date=$_POST['date'];
-    // echo $date;
-    // exit();
     $robotSerial=$_POST['robotSerial'];
-    $sql='select robotState,count(*) as time from robotMonitorLog where robotSerial like \''.$robotSerial.'%\' and time like \''.$date.'%\' group by robotState;';
+    $workshop=$_POST['workshop'];
+
+    $sql='select robotState,count(*) as time from robotMonitorLog where 0=0 ';
+    if($robotSerial!=''){
+        $sql=$sql.' and robotSerial=\''.$robotSerial.'\' ';
+    }
+    if($workshop!=''){
+        $sql=$sql.' and workshop=\''.$workshop.'\'';
+    }
+    $sql=$sql.' and time like \''.$date.'%\' group by robotState;';
+
     // echo $sql;
     // exit();
     $_result=execSql($sql);
@@ -66,7 +97,7 @@ function getRobotStateTimeData(){
 }
 
 function execSql($sql){
-    $mysqli = new mysqli('127.0.0.1','lzj','123456','robot');
+    $mysqli = new mysqli('127.0.0.1','root','123456','robot');
     $result = $mysqli->query($sql);
     $mysqli->close();
     return $result;

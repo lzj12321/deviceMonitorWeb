@@ -9,24 +9,26 @@
         <h1>Robot Monitor</h1>
         <div class='selectorDiv'>
             <input type="date" class="dateSelector">
-            <select class='robotSelector'>
-            </select>
+            <select class='workshopSelector'></select>
+            <select class='robotSelector'></select>
             <input type="button" class='confirmButton' value="Confirm" onclick="confirmClicked()">
         </div>
         <br/>
         <div class='canvasDiv'>
-            <canvas class='_canvas' id='_canvas' width="800" height="600">
-            </canvas>
+            <canvas class='_canvas' id='_canvas' width="700" height="600"></canvas>
+            <canvas class='pieChartCanvas' id='pieChartCanvas' width="800" height="600"></canvas>
         </div>
 
         <div class='tableDiv'>
             <table class='_dataTable'>
                 <tr>
                     <th style="width: 100px;">id</th>
-                    <th style="width: 100px;">device</th>
+                    <th style="width: 200px;">device</th>
                     <th style="width: 100px;">state</th>
                     <th style="width: 300px;">time</th>
                     <th style="width: 170px;">elaspe(min)</th>
+                    <th style="width: 170px;">workshop</th>
+                    <th style="width: 300px;">description</th>
                 </tr>
             </table>
         </div>
