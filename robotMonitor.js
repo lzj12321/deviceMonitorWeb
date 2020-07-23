@@ -1,40 +1,16 @@
-document.write("<script language=javascript src='./canvasDraw.js'></script>");
+// document.write("<script language=javascript src='./canvasDraw.js'></script>");
 
 window.date='init';
 window.robotSerial='init';
 window.workshop='init';
 
+var showTime=500;
+var choosedDate,choosedDevice,choosedWorkshop;
+var deviceHaltData;
+var deviceHaltTimeData;
 
-function confirmClicked(){
-    /// it wouldn't do anything if the condition didn't change ///
-    var _date=$('.dateSelector').val();
-    var _robotSerial=$('.robotSelector').val().trim();
-    var _workshop=$('.workshopSelector').val().trim();
-    // if(_date===window.date&&window.robotSerial===_robotSerial&&_workshop===window.workshop){
-    //     return;
-    // }else{
-    //     window.date=_date;
-    //     window.robotSerial=_robotSerial;
-    //     window.workshop=_workshop;
-    // }
-
-
-    var showTime=500;
-    $('._canvas').hide(showTime);
-    $('.tableDiv').hide(showTime);
-    $('.pieChartCanvas').hide(showTime);
-    var _flag=true;
-    var getDataUrl='./robotMonitor.php?action=getRobotData';
-    var getStateTimeDataUrl='./robotMonitor.php?action=getRobotStateTimeData';
-    var _device=new Array();
-    var _states=new Array();
-    var _times=new Array();
-    var __stateElaspe=new Array();
-    var workshops=new Array();
-    $.ajaxSetup({
-            async : false
-        });
-    $.post(getDataUrl,{date:_date,robotSerial:_robotSerial,workshop:_workshop},function(data){
+function getDeviceHaltData(){
+    $.post(getDataUrl,{date:choosedDate,robotSerial:choosedDevice,workshop:choosedWorkshop},function(data){
         if(data==0){
             $('._canvas').hide(showTime);
             $('.tableDiv').hide(showTime);
@@ -42,17 +18,17 @@ function confirmClicked(){
             _flag=false;
             return;
         }
-        var _data=$.parseJSON(data);
-        for(var i=0;i<_data.length;++i){
-            var device=_data[i]['robotSerial'];
-            var __time=_data[i]['time'];
-            var __state=_data[i]['robotState'];
-            var __workshop=_data[i]['workshop'];
+        var deviceHaltData=$.parseJSON(data);
+        for(var i=0;i<deviceHaltData.length;++i){
+            var device=deviceHaltData[i]['deviceSerial'];
+            var __time=deviceHaltData[i]['time'];
+            var __state=deviceHaltData[i]['robotState'];
+            var __workshop=deviceHaltData[i]['workshop'];
             var _elaspe=0;
             workshops.push(__workshop);
-            if(i!=_data.length-1&&device==_data[i+1]['robotSerial']){
+            if(i!=deviceHaltData.length-1&&device==deviceHaltData[i+1]['deviceSerial']){
                 var startDateTime=new Date(__time);
-                var stopDateTime=new Date(_data[i+1]['time']);
+                var stopDateTime=new Date(deviceHaltData[i+1]['time']);
                 _elaspe=((stopDateTime-startDateTime)/60000).toFixed(2);
             }
             else{
@@ -77,6 +53,42 @@ function confirmClicked(){
             }
         }
     });
+}
+
+
+function confirmClicked(){
+    /// it wouldn't do anything if the condition didn't change ///
+    choosedDate=$('.dateSelector').val();
+    choosedDevice=$('.robotSelector').val().trim();
+    choosedWorkshop=$('.workshopSelector').val().trim();
+    // if(_date===window.date&&window.robotSerial===_robotSerial&&_workshop===window.workshop){
+    //     return;
+    // }else{
+    //     window.date=_date;
+    //     window.robotSerial=_robotSerial;
+    //     window.workshop=_workshop;
+    // }
+
+    $('._canvas').hide(showTime);
+    $('.tableDiv').hide(showTime);
+    $('.pieChartCanvas').hide(showTime);
+    var _flag=true;
+    var getDataUrl='./robotMonitor.php?action=getRobotData';
+    var getStateTimeDataUrl='./robotMonitor.php?action=getRobotStateTimeData';
+    var _device=new Array();
+    var _states=new Array();
+    var _times=new Array();
+    var __stateElaspe=new Array();
+    var workshops=new Array();
+    $.ajaxSetup({
+            async : false
+        });
+    
+
+
+
+
+
     if(!_flag)
     {
         return;
@@ -84,11 +96,11 @@ function confirmClicked(){
 
     var __states=new Array();
     var __stateTime=new Array();
-    $.post(getStateTimeDataUrl,{date:_date,robotSerial:_robotSerial,workshop:_workshop},function(result){
-        var _data=$.parseJSON(result);
-        for(var i=0;i<_data.length;++i){
-            var __time=_data[i]['time'];
-            var __state=_data[i]['robotState'];
+    $.post(getStateTimeDataUrl,{date:choosedDate,robotSerial:choosedDevice,workshop:choosedWorkshop},function(result){
+        var deviceHaltData=$.parseJSON(result);
+        for(var i=0;i<deviceHaltData.length;++i){
+            var __time=deviceHaltData[i]['time'];
+            var __state=deviceHaltData[i]['robotState'];
             if(__state=='check'){
                 continue;
             }
@@ -202,7 +214,7 @@ function initial(){
 }
 
 function refreshDataTable(states,time,elaspeTime,device,workshops){
-    var dataTable=$('._dataTable');
+    var dataTable=$('.deviceHaltDataTable');
     var _index=1;
     $('tr:gt(0)').remove();
     for(var i=0;i<states.length;++i){
@@ -222,6 +234,50 @@ function refreshDataTable(states,time,elaspeTime,device,workshops){
     }
 }
 
+function drawDataDiagram(data,flag){
+    var color=['red','yellow','blue'];
+    var _canvas=document.getElementById("_canvas");
+    var _coorW=_canvas.width;
+    var _coorH=_canvas.height;
+    var ctx=_canvas.getContext("2d");
+    ctx.clearRect(0,0,_coorW,_coorH);
+    var maxData=0;
+    for(var i=0;i<data.length;++i){
+        if(maxData<data[i]){
+            maxData=data[i];
+        }
+    }
+    var dataSize=data.length;
+    if(dataSize<4)
+    {
+        dataSize=4;
+    }
+    var _coorX=0;
+    var _coorY=_coorH;
+    var _rate=(_coorH-50)/maxData;
+    var deviceHaltData=[];
+    for(var i=0;i<data.length;++i){
+        var _d=parseInt(data[i]*_rate);
+        deviceHaltData.push(_d);
+    }
+    var gap=parseInt((_coorW-10)/dataSize);
+    var _width=gap/2;
+    ctx.font="30px Arial";
+    for(var i=0;i<data.length;++i)
+    {
+
+        ctx.fillStyle=color[i];
+        ctx.strokeStyle=color[i];
+        ctx.fillRect(_coorX+gap*(i+1)-_width,_coorY-deviceHaltData[i],_width,deviceHaltData[i]);
+        ctx.strokeRect(_coorX+gap*(i+1)-_width,_coorY-deviceHaltData[i],_width,deviceHaltData[i]);
+        var txtLength=ctx.measureText(data[i]).width;
+        ctx.fillStyle='green';
+        ctx.strokeStyle='green';
+        ctx.fillText(data[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorY-deviceHaltData[i]-10,_width);
+        txtLength=ctx.measureText(flag[i]).width;
+        ctx.fillText(flag[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorH-5,_width);
+    }
+}
 
 function getServerCurrTime(){
     var currTime='';

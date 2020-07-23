@@ -23,10 +23,10 @@ function getServerTime(){
 }
 
 function initData(){
-    $sql='select distinct robotSerial from robotMonitorLog';
+    $sql='select distinct deviceSerial from robotMonitorLog';
     $_result=execSql($sql);
     while ($row = $_result->fetch_assoc()){
-        $data[0][] = $row['robotSerial'];
+        $data[0][] = $row['deviceSerial'];
     }
 
     $sql='select distinct workshop from robotMonitorLog';
@@ -40,16 +40,16 @@ function initData(){
 
 function getRobotData(){
     $date=$_POST['date'];
-    $robotSerial=$_POST['robotSerial'];
+    $deviceSerial=$_POST['deviceSerial'];
     $workshop=$_POST['workshop'];
-    $sql='select robotSerial,robotState,time,workshop from robotMonitorLog where 0=0 ';
-    if($robotSerial!=''){
-        $sql=$sql.' and robotSerial=\''.$robotSerial.'\' ';
+    $sql='select deviceSerial,robotState,time,workshop from robotMonitorLog where 0=0 ';
+    if($deviceSerial!=''){
+        $sql=$sql.' and deviceSerial=\''.$deviceSerial.'\' ';
     }
     if($workshop!=''){
         $sql=$sql.' and workshop=\''.$workshop.'\' ';
     }
-    $sql=$sql.' and time like \''.$date.'%\' order by robotSerial,SN asc';
+    $sql=$sql.' and time like \''.$date.'%\' order by deviceSerial,SN asc';
     // echo $sql;
     // exit();
 
@@ -68,12 +68,12 @@ function getRobotData(){
 
 function getRobotStateTimeData(){
     $date=$_POST['date'];
-    $robotSerial=$_POST['robotSerial'];
+    $robotSerial=$_POST['deviceSerial'];
     $workshop=$_POST['workshop'];
 
     $sql='select robotState,count(*) as time from robotMonitorLog where 0=0 ';
     if($robotSerial!=''){
-        $sql=$sql.' and robotSerial=\''.$robotSerial.'\' ';
+        $sql=$sql.' and deviceSerial=\''.$deviceSerial.'\' ';
     }
     if($workshop!=''){
         $sql=$sql.' and workshop=\''.$workshop.'\'';
@@ -97,7 +97,7 @@ function getRobotStateTimeData(){
 }
 
 function execSql($sql){
-    $mysqli = new mysqli('127.0.0.1','root','123456','robot');
+    $mysqli = new mysqli('127.0.0.1','lzj','123456','robot');
     $result = $mysqli->query($sql);
     $mysqli->close();
     return $result;
