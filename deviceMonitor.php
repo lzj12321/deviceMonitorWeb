@@ -5,14 +5,17 @@ switch($action){
     case 'initData':
         initData();
     break;
-    case 'getRobotData':
-        getRobotData();
+    case 'getDeviceData':
+        getDeviceData();
     break;
-    case 'getRobotStateTimeData':
-        getRobotStateTimeData();
+    case 'getDeviceStateTimeData':
+        getDeviceStateTimeData();
     break;
     case 'getServerTime':
         getServerTime();
+    break;
+    case 'getWorkshopDevice':
+        getWorkshopDevice();
     break;
 }
 
@@ -23,13 +26,13 @@ function getServerTime(){
 }
 
 function initData(){
-    $sql='select distinct deviceSerial from robotMonitorLog';
+    $sql='select distinct deviceSerial from deviceMonitorLog';
     $_result=execSql($sql);
     while ($row = $_result->fetch_assoc()){
         $data[0][] = $row['deviceSerial'];
     }
 
-    $sql='select distinct workshop from robotMonitorLog';
+    $sql='select distinct workshop from deviceMonitorLog';
     $_result=execSql($sql);
     while ($row = $_result->fetch_assoc()){
         $data[1][] = $row['workshop'];
@@ -38,11 +41,11 @@ function initData(){
     exit();
 }
 
-function getRobotData(){
+function getDeviceData(){
     $date=$_POST['date'];
     $deviceSerial=$_POST['deviceSerial'];
     $workshop=$_POST['workshop'];
-    $sql='select deviceSerial,robotState,time,workshop from robotMonitorLog where 0=0 ';
+    $sql='select deviceSerial,deviceState,time,workshop,description from deviceMonitorLog where 0=0 ';
     if($deviceSerial!=''){
         $sql=$sql.' and deviceSerial=\''.$deviceSerial.'\' ';
     }
@@ -66,19 +69,19 @@ function getRobotData(){
     exit();
 }
 
-function getRobotStateTimeData(){
+function getDeviceStateTimeData(){
     $date=$_POST['date'];
-    $robotSerial=$_POST['deviceSerial'];
+    $deviceSerial=$_POST['deviceSerial'];
     $workshop=$_POST['workshop'];
 
-    $sql='select robotState,count(*) as time from robotMonitorLog where 0=0 ';
-    if($robotSerial!=''){
+    $sql='select deviceState,count(*) as time from deviceMonitorLog where 0=0 ';
+    if($deviceSerial!=''){
         $sql=$sql.' and deviceSerial=\''.$deviceSerial.'\' ';
     }
     if($workshop!=''){
         $sql=$sql.' and workshop=\''.$workshop.'\'';
     }
-    $sql=$sql.' and time like \''.$date.'%\' group by robotState;';
+    $sql=$sql.' and time like \''.$date.'%\' group by deviceState;';
 
     // echo $sql;
     // exit();
@@ -94,6 +97,19 @@ function getRobotStateTimeData(){
     }
     // echo $_result;
     exit();
+}
+
+function getWorkshopDevice(){
+    $workshop=$_POST['workshop'];
+    $sql='select distinct deviceSerial from deviceMonitorLog where 0=0 ';
+    if($workshop!=''){
+        $sql=$sql.' and workshop=\''.$workshop.'\'';
+    }
+    $_result=execSql($sql);
+    while ($row = $_result->fetch_assoc()){
+        $data[] = $row['deviceSerial'];
+    }
+    echo json_encode($data);
 }
 
 function execSql($sql){

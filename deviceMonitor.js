@@ -1,7 +1,7 @@
 // document.write("<script language=javascript src='./canvasDraw.js'></script>");
 
 window.date='init';
-window.robotSerial='init';
+window.deviceSerial='init';
 window.workshop='init';
 
 var showTime=500;
@@ -14,6 +14,9 @@ var deviceSerials=new Array();
 var deviceStates=new Array();
 var deviceHaltTimes=new Array();
 var deviceHaltElaspe=new Array();
+var deviceHaltDescription=new Array();
+
+var queryHaltDataFlag=true; 
 
 var stateColor={
     'offline':'blue',
@@ -23,26 +26,39 @@ var stateColor={
 };
 
 
-var getDataUrl='./robotMonitor.php?action=getRobotData';
+var getDataUrl='./deviceMonitor.php?action=getDeviceData';
+
+function clearData(){
+    deviceWorkshop.length=0;
+    deviceSerials.length=0;
+    deviceStates.length=0;
+    deviceHaltTimes.length=0;
+    deviceHaltElaspe.length=0;
+    deviceHaltDescription.length=0;
+    deviceHaltData.length=0;
+}
 
 function getDeviceHaltData(){
+    queryHaltDataFlag=true; 
+
     $.ajaxSetup({
             async : false
         });
-    $.post(getDataUrl,{date:choosedDate,robotSerial:choosedDevice,workshop:choosedWorkshop},function(data){
+    $.post(getDataUrl,{date:choosedDate,deviceSerial:choosedDevice,workshop:choosedWorkshop},function(data){
         if(data==0){
             $('._canvas').hide(showTime);
             $('.tableDiv').hide(showTime);
             $('.pieChartCanvas').hide(showTime);
-            _flag=false;
+            queryHaltDataFlag=false;
             return;
         }
         deviceHaltData=$.parseJSON(data);
         for(var i=0;i<deviceHaltData.length;++i){
             var _device=deviceHaltData[i]['deviceSerial'];
             var _time=deviceHaltData[i]['time'];
-            var _state=deviceHaltData[i]['robotState'];
+            var _state=deviceHaltData[i]['deviceState'];
             var _workshop=deviceHaltData[i]['workshop'];
+            var _description=deviceHaltData[i]['description'];
             var _elaspe=0;
             var startDateTime=new Date(_time);
             if(i!=deviceHaltData.length-1&&_device==deviceHaltData[i+1]['deviceSerial']){
@@ -67,49 +83,29 @@ function getDeviceHaltData(){
             deviceHaltTimes.push(_time);
             deviceStates.push(_state);
             deviceSerials.push(_device);
+            deviceHaltDescription.push(_description);
         }
     });
 }
 
 function confirmClicked(){
-
-    deviceWorkshop.length=0;
-    deviceSerials.length=0;
-    deviceStates.length=0;
-    deviceHaltTimes.length=0;
-    deviceHaltElaspe.length=0;
+    clearData();
 
     choosedDate=$('.dateSelector').val();
-    choosedDevice=$('.robotSelector').val().trim();
+    choosedDevice=$('.deviceSelector').val().trim();
     choosedWorkshop=$('.workshopSelector').val().trim();
 
     $('._canvas').hide(showTime/2);
     $('.tableDiv').hide(showTime/2);
     $('.pieChartCanvas').hide(showTime/2);
-    var _flag=true;
-    var getStateTimeDataUrl='./robotMonitor.php?action=getRobotStateTimeData';
 
     getDeviceHaltData();
 
-    if(!_flag)
+    if(!queryHaltDataFlag)
     {
         return;
     }
 
-    // var __states=new Array();
-    // var __stateTime=new Array();
-    // $.post(getStateTimeDataUrl,{date:choosedDate,robotSerial:choosedDevice,workshop:choosedWorkshop},function(result){
-    //     var deviceHaltData=$.parseJSON(result);
-    //     for(var i=0;i<deviceHaltData.length;++i){
-    //         var __time=deviceHaltData[i]['time'];
-    //         var __state=deviceHaltData[i]['robotState'];
-    //         if(__state=='check'){
-    //             continue;
-    //         }
-    //         __states.push(__state);
-    //         __stateTime.push(parseInt(__time));
-    //     }
-    // });
     drawDataDiagram();
     refreshDataTable();
     calcPieChart();
@@ -195,14 +191,14 @@ function calcPieChart(){
 
 function initial(){
     getServerCurrTime();
-    $('.robotSelector').append("<option value='     '></option>");
+    $('.deviceSelector').append("<option value='     '></option>");
     $('.workshopSelector').append("<option value='     '></option>");
-    var initDataUrl='./robotMonitor.php?action=initData';
+    var initDataUrl='./deviceMonitor.php?action=initData';
     $.get(initDataUrl,function(data){
         var iniData=$.parseJSON(data);
         for(var i=0;i<iniData[0].length;++i)
         {
-            $('.robotSelector').append('<option value='+iniData[0][i]+'>'+iniData[0][i]+'</option>');
+            $('.deviceSelector').append('<option value='+iniData[0][i]+'>'+iniData[0][i]+'</option>');
         }
         for(var i=0;i<iniData[1].length;++i)
         {
@@ -226,7 +222,7 @@ function refreshDataTable(){
         _row+='<td>'+deviceHaltTimes[i]+'</td>';
         _row+='<td>'+deviceHaltElaspe[i]+'</td>';
         _row+='<td>'+deviceWorkshop[i]+'</td>';
-        _row+='<td>NULL</td>';
+        _row+='<td>'+deviceHaltDescription[i]+'</td>';
         _row+='</tr>';
         dataTable.append(_row);
     }
@@ -239,18 +235,13 @@ function drawDataDiagram(){
         "stop":0,
     };
 
-    // var stateTime=new Array();
     for(var i=0;i<deviceHaltData.length;++i)
     {
-        if(deviceHaltData[i]['robotState']=='check'){
+        if(deviceHaltData[i]['deviceState']=='check'){
             continue;
         }
-        stateTime[deviceHaltData[i]['robotState']]++;
+        stateTime[deviceHaltData[i]['deviceState']]++;
     }
-
-    // alert(stateTime['stop']);
-    // alert(stateTime['pause']);
-    // alert(stateTime['offline']);
 
     var _canvas=document.getElementById("_canvas");
     var _coorW=_canvas.width;
@@ -276,7 +267,6 @@ function drawDataDiagram(){
     for(var item in stateTime){
         var _d=parseInt(stateTime[item]*_rate);
         _deviceHaltData[item]=_d;
-        // alert(_deviceHaltData[item]);
     }
     var gap=parseInt((_coorW-10)/dataSize);
     var _width=gap/2;
@@ -284,12 +274,12 @@ function drawDataDiagram(){
     var i=0;
     for(var item in stateTime)
     {
-        // alert(item);
+        if(stateTime[item]==0)
+        {
+            continue;
+        }
         ctx.fillStyle=stateColor[item];
         ctx.strokeStyle=stateColor[item];
-        // alert(stateColor[item]);
-        // ctx.fillStyle='red';
-        // ctx.strokeStyle='red';
         ctx.fillRect(_coorX+gap*(i+1)-_width,_coorY-_deviceHaltData[item],_width,_deviceHaltData[item]);
         ctx.strokeRect(_coorX+gap*(i+1)-_width,_coorY-_deviceHaltData[item],_width,_deviceHaltData[item]);
         var txtLength=ctx.measureText(stateTime[item]).width;
@@ -299,13 +289,12 @@ function drawDataDiagram(){
         txtLength=ctx.measureText(item).width;
         ctx.fillText(item,_coorX+gap*(i+1)-txtLength/2-_width/2,_coorH-5,_width);
         ++i;
-        // alert(_coorY-_deviceHaltData[item]);
     }
 }
 
 function getServerCurrTime(){
     var currTime='';
-    var getServerTimeUrl='./robotMonitor.php?action=getServerTime';
+    var getServerTimeUrl='./deviceMonitor.php?action=getServerTime';
     $.ajaxSetup({
             async: false
         });
@@ -315,5 +304,24 @@ function getServerCurrTime(){
     return currTime;
 }
 
-
+function updateDeviceSelector(){
+    // alert('test');
+    var getDeviceUrl='./deviceMonitor.php?action=getWorkshopDevice';
+    var deviceSelector=document.getElementById('deviceSelector');
+    var _choosedWorkshop=$('.workshopSelector').val().trim();
+    for(var i=deviceSelector.childNodes.length-1;i>0;--i){
+        deviceSelector.childNodes[i].remove();
+    }
+    $.ajaxSetup({
+        async : false
+    });
+    $.post(getDeviceUrl,{workshop:_choosedWorkshop},function(data){
+        var _devices=$.parseJSON(data);
+        for(var i=0;i<_devices.length;++i){
+            // alert(_devices[i]);
+            // $('#deviceSelector').append("<option value='test'>test</option>");
+            $('#deviceSelector').append('<option value='+_devices[i]+'>'+_devices[i]+'</option>');
+        }
+    });
+}
 
