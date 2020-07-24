@@ -6,10 +6,29 @@ window.workshop='init';
 
 var showTime=500;
 var choosedDate,choosedDevice,choosedWorkshop;
-var deviceHaltData;
-var deviceHaltTimeData;
+var deviceHaltData=new Array();
+// var deviceHaltTimeData=new Array();
+
+var deviceWorkshop=new Array();
+var deviceSerials=new Array();
+var deviceStates=new Array();
+var deviceHaltTimes=new Array();
+var deviceHaltElaspe=new Array();
+
+var stateColor={
+    'offline':'blue',
+    'check':'green',
+    'stop':'red',
+    'pause':'yellow'
+};
+
+
+var getDataUrl='./robotMonitor.php?action=getRobotData';
 
 function getDeviceHaltData(){
+    $.ajaxSetup({
+            async : false
+        });
     $.post(getDataUrl,{date:choosedDate,robotSerial:choosedDevice,workshop:choosedWorkshop},function(data){
         if(data==0){
             $('._canvas').hide(showTime);
@@ -18,22 +37,20 @@ function getDeviceHaltData(){
             _flag=false;
             return;
         }
-        var deviceHaltData=$.parseJSON(data);
+        deviceHaltData=$.parseJSON(data);
         for(var i=0;i<deviceHaltData.length;++i){
-            var device=deviceHaltData[i]['deviceSerial'];
-            var __time=deviceHaltData[i]['time'];
-            var __state=deviceHaltData[i]['robotState'];
-            var __workshop=deviceHaltData[i]['workshop'];
+            var _device=deviceHaltData[i]['deviceSerial'];
+            var _time=deviceHaltData[i]['time'];
+            var _state=deviceHaltData[i]['robotState'];
+            var _workshop=deviceHaltData[i]['workshop'];
             var _elaspe=0;
-            workshops.push(__workshop);
-            if(i!=deviceHaltData.length-1&&device==deviceHaltData[i+1]['deviceSerial']){
-                var startDateTime=new Date(__time);
+            var startDateTime=new Date(_time);
+            if(i!=deviceHaltData.length-1&&_device==deviceHaltData[i+1]['deviceSerial']){
                 var stopDateTime=new Date(deviceHaltData[i+1]['time']);
                 _elaspe=((stopDateTime-startDateTime)/60000).toFixed(2);
             }
             else{
                 var currDate=new Date(getServerCurrTime());
-                var startDateTime=new Date(__time);
                 var _year=startDateTime.getFullYear();
                 var _month=startDateTime.getMonth();
                 var _day=startDateTime.getDate();
@@ -44,99 +61,80 @@ function getDeviceHaltData(){
                     _elaspe=((nextday-startDateTime)/60000+24*60).toFixed(2);
                 }
             }
-            // if(_elaspe<120)
-            {
-                __stateElaspe.push(_elaspe);
-                _times.push(__time);
-                _states.push(__state);
-                _device.push(device);
-            }
+
+            deviceWorkshop.push(_workshop);
+            deviceHaltElaspe.push(_elaspe);
+            deviceHaltTimes.push(_time);
+            deviceStates.push(_state);
+            deviceSerials.push(_device);
         }
     });
 }
 
-
 function confirmClicked(){
-    /// it wouldn't do anything if the condition didn't change ///
+
+    deviceWorkshop.length=0;
+    deviceSerials.length=0;
+    deviceStates.length=0;
+    deviceHaltTimes.length=0;
+    deviceHaltElaspe.length=0;
+
     choosedDate=$('.dateSelector').val();
     choosedDevice=$('.robotSelector').val().trim();
     choosedWorkshop=$('.workshopSelector').val().trim();
-    // if(_date===window.date&&window.robotSerial===_robotSerial&&_workshop===window.workshop){
-    //     return;
-    // }else{
-    //     window.date=_date;
-    //     window.robotSerial=_robotSerial;
-    //     window.workshop=_workshop;
-    // }
 
-    $('._canvas').hide(showTime);
-    $('.tableDiv').hide(showTime);
-    $('.pieChartCanvas').hide(showTime);
+    $('._canvas').hide(showTime/2);
+    $('.tableDiv').hide(showTime/2);
+    $('.pieChartCanvas').hide(showTime/2);
     var _flag=true;
-    var getDataUrl='./robotMonitor.php?action=getRobotData';
     var getStateTimeDataUrl='./robotMonitor.php?action=getRobotStateTimeData';
-    var _device=new Array();
-    var _states=new Array();
-    var _times=new Array();
-    var __stateElaspe=new Array();
-    var workshops=new Array();
-    $.ajaxSetup({
-            async : false
-        });
-    
 
-
-
-
+    getDeviceHaltData();
 
     if(!_flag)
     {
         return;
     }
 
-    var __states=new Array();
-    var __stateTime=new Array();
-    $.post(getStateTimeDataUrl,{date:choosedDate,robotSerial:choosedDevice,workshop:choosedWorkshop},function(result){
-        var deviceHaltData=$.parseJSON(result);
-        for(var i=0;i<deviceHaltData.length;++i){
-            var __time=deviceHaltData[i]['time'];
-            var __state=deviceHaltData[i]['robotState'];
-            if(__state=='check'){
-                continue;
-            }
-            __states.push(__state);
-            __stateTime.push(parseInt(__time));
-        }
-    });
-    drawDataDiagram(__stateTime,__states);
-    refreshDataTable(_states,_times,__stateElaspe,_device,workshops);
-    calcPieChart(_states,__stateElaspe);
+    // var __states=new Array();
+    // var __stateTime=new Array();
+    // $.post(getStateTimeDataUrl,{date:choosedDate,robotSerial:choosedDevice,workshop:choosedWorkshop},function(result){
+    //     var deviceHaltData=$.parseJSON(result);
+    //     for(var i=0;i<deviceHaltData.length;++i){
+    //         var __time=deviceHaltData[i]['time'];
+    //         var __state=deviceHaltData[i]['robotState'];
+    //         if(__state=='check'){
+    //             continue;
+    //         }
+    //         __states.push(__state);
+    //         __stateTime.push(parseInt(__time));
+    //     }
+    // });
+    drawDataDiagram();
+    refreshDataTable();
+    calcPieChart();
     $('._canvas').show(showTime);
     $('.tableDiv').show(showTime);
     $('.pieChartCanvas').show(showTime);
 }
 
-
-function calcPieChart(states,elaspe){
+function calcPieChart(){
     var data = [{
         "value":"0",
-        "color":"red",
         "state":"stop"
     },{
         "value":"0",
-        "color":"yellow",
         "state":"pause"
     },{
         "value":"0",
-        "color":"blue",
         "state":"offline"
     }];
     var totalElaspe=0;
-    for(var i=0;i<states.length;++i){
+    for(var i=0;i<deviceStates.length;++i){
         for(var j=0;j<data.length;++j){
-            if(states[i]==data[j].state){
-                totalElaspe=parseFloat(elaspe[i])+parseFloat(totalElaspe);
-                data[j].value=parseFloat(data[j].value)+parseFloat(elaspe[i]);
+            if(deviceStates[i]==data[j].state){
+                totalElaspe=parseFloat(deviceHaltElaspe[i])+parseFloat(totalElaspe);
+                data[j].value=parseFloat(data[j].value)+parseFloat(deviceHaltElaspe[i]);
                 break;
             }
         }
@@ -154,7 +152,7 @@ function calcPieChart(states,elaspe){
     var x0  =_coorW/2,y0 = _coorH/2+70;//圆心
     var x=700;
     var radius = 150;
-    var y=y0-radius;//文字放置位置
+    var y=y0-radius*1.5;//文字放置位置
     var tempAngle = -90;//画圆的起始角度
     for(var i = 0;i<data.length;i++){
         // alert('test');
@@ -172,7 +170,7 @@ function calcPieChart(states,elaspe){
         if( textAngle > 90 && textAngle < 270 ){
             ctx.textAlign = 'end';
         }
-        ctx.fillStyle = data[i].color;
+        ctx.fillStyle = stateColor[data[i].state];
         var text = data[i].state + " "+ (data[i].value*100).toFixed(2)+"%";
         ctx.font='30px Arial';
         // if(data[i].state=='stop'){
@@ -213,41 +211,60 @@ function initial(){
     })
 }
 
-function refreshDataTable(states,time,elaspeTime,device,workshops){
-    var dataTable=$('.deviceHaltDataTable');
+function refreshDataTable(){
+    var dataTable=$('._dataTable');
     var _index=1;
     $('tr:gt(0)').remove();
-    for(var i=0;i<states.length;++i){
-        if(states[i]=='check'){
+    for(var i=0;i<deviceSerials.length;++i){
+        if(deviceStates[i]=='check'){
             continue;
         }
         var _row='<tr>';
         _row+='<td>'+(_index++).toString()+'</td>';
-        _row+='<td>'+device[i]+'</td>';
-        _row+='<td>'+states[i]+'</td>';
-        _row+='<td>'+time[i]+'</td>';
-        _row+='<td>'+elaspeTime[i]+'</td>';
-        _row+='<td>'+workshops[i]+'</td>';
+        _row+='<td>'+deviceSerials[i]+'</td>';
+        _row+='<td>'+deviceStates[i]+'</td>';
+        _row+='<td>'+deviceHaltTimes[i]+'</td>';
+        _row+='<td>'+deviceHaltElaspe[i]+'</td>';
+        _row+='<td>'+deviceWorkshop[i]+'</td>';
         _row+='<td>NULL</td>';
         _row+='</tr>';
         dataTable.append(_row);
     }
 }
 
-function drawDataDiagram(data,flag){
-    var color=['red','yellow','blue'];
+function drawDataDiagram(){
+    var stateTime={
+        "offline":0,
+        "pause":0,
+        "stop":0,
+    };
+
+    // var stateTime=new Array();
+    for(var i=0;i<deviceHaltData.length;++i)
+    {
+        if(deviceHaltData[i]['robotState']=='check'){
+            continue;
+        }
+        stateTime[deviceHaltData[i]['robotState']]++;
+    }
+
+    // alert(stateTime['stop']);
+    // alert(stateTime['pause']);
+    // alert(stateTime['offline']);
+
     var _canvas=document.getElementById("_canvas");
     var _coorW=_canvas.width;
     var _coorH=_canvas.height;
     var ctx=_canvas.getContext("2d");
     ctx.clearRect(0,0,_coorW,_coorH);
     var maxData=0;
-    for(var i=0;i<data.length;++i){
-        if(maxData<data[i]){
-            maxData=data[i];
+    var dataSize=0;
+    for(var item in stateTime){
+        dataSize++;
+        if(maxData<stateTime[item]){
+            maxData=stateTime[item];
         }
     }
-    var dataSize=data.length;
     if(dataSize<4)
     {
         dataSize=4;
@@ -255,27 +272,34 @@ function drawDataDiagram(data,flag){
     var _coorX=0;
     var _coorY=_coorH;
     var _rate=(_coorH-50)/maxData;
-    var deviceHaltData=[];
-    for(var i=0;i<data.length;++i){
-        var _d=parseInt(data[i]*_rate);
-        deviceHaltData.push(_d);
+    var _deviceHaltData=new Array();
+    for(var item in stateTime){
+        var _d=parseInt(stateTime[item]*_rate);
+        _deviceHaltData[item]=_d;
+        // alert(_deviceHaltData[item]);
     }
     var gap=parseInt((_coorW-10)/dataSize);
     var _width=gap/2;
     ctx.font="30px Arial";
-    for(var i=0;i<data.length;++i)
+    var i=0;
+    for(var item in stateTime)
     {
-
-        ctx.fillStyle=color[i];
-        ctx.strokeStyle=color[i];
-        ctx.fillRect(_coorX+gap*(i+1)-_width,_coorY-deviceHaltData[i],_width,deviceHaltData[i]);
-        ctx.strokeRect(_coorX+gap*(i+1)-_width,_coorY-deviceHaltData[i],_width,deviceHaltData[i]);
-        var txtLength=ctx.measureText(data[i]).width;
+        // alert(item);
+        ctx.fillStyle=stateColor[item];
+        ctx.strokeStyle=stateColor[item];
+        // alert(stateColor[item]);
+        // ctx.fillStyle='red';
+        // ctx.strokeStyle='red';
+        ctx.fillRect(_coorX+gap*(i+1)-_width,_coorY-_deviceHaltData[item],_width,_deviceHaltData[item]);
+        ctx.strokeRect(_coorX+gap*(i+1)-_width,_coorY-_deviceHaltData[item],_width,_deviceHaltData[item]);
+        var txtLength=ctx.measureText(stateTime[item]).width;
         ctx.fillStyle='green';
         ctx.strokeStyle='green';
-        ctx.fillText(data[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorY-deviceHaltData[i]-10,_width);
-        txtLength=ctx.measureText(flag[i]).width;
-        ctx.fillText(flag[i],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorH-5,_width);
+        ctx.fillText(stateTime[item],_coorX+gap*(i+1)-txtLength/2-_width/2,_coorY-_deviceHaltData[item]-10,_width);
+        txtLength=ctx.measureText(item).width;
+        ctx.fillText(item,_coorX+gap*(i+1)-txtLength/2-_width/2,_coorH-5,_width);
+        ++i;
+        // alert(_coorY-_deviceHaltData[item]);
     }
 }
 
@@ -287,7 +311,6 @@ function getServerCurrTime(){
         });
     $.post(getServerTimeUrl,function(data){
         currTime=data;
-        // alert(data);
     })
     return currTime;
 }
