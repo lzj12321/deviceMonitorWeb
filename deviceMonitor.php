@@ -45,16 +45,14 @@ function getDeviceData(){
     $date=$_POST['date'];
     $deviceSerial=$_POST['deviceSerial'];
     $workshop=$_POST['workshop'];
-    $sql='select deviceSerial,deviceState,time,workshop,description from deviceMonitorLog where 0=0 ';
+    $sql='select deviceSerial,deviceState,time,workshop,description,elaspe from deviceMonitorLog where elaspe!=-1 ';
     if($deviceSerial!=''){
         $sql=$sql.' and deviceSerial=\''.$deviceSerial.'\' ';
     }
     if($workshop!=''){
         $sql=$sql.' and workshop=\''.$workshop.'\' ';
     }
-    $sql=$sql.' and time like \''.$date.'%\' order by deviceSerial,SN asc';
-    // echo $sql;
-    // exit();
+    $sql=$sql.' and time like \''.$date.'%\' order by SN desc';
 
     $_result=execSql($sql);
     while ($row = $_result->fetch_assoc()){

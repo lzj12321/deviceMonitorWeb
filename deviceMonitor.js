@@ -45,6 +45,7 @@ function getDeviceHaltData(){
             async : false
         });
     $.post(getDataUrl,{date:choosedDate,deviceSerial:choosedDevice,workshop:choosedWorkshop},function(data){
+        // alert(data);
         if(data==0){
             $('._canvas').hide(showTime);
             $('.tableDiv').hide(showTime);
@@ -54,29 +55,12 @@ function getDeviceHaltData(){
         }
         deviceHaltData=$.parseJSON(data);
         for(var i=0;i<deviceHaltData.length;++i){
+            var _elaspe=deviceHaltData[i]['elaspe'];
             var _device=deviceHaltData[i]['deviceSerial'];
             var _time=deviceHaltData[i]['time'];
             var _state=deviceHaltData[i]['deviceState'];
             var _workshop=deviceHaltData[i]['workshop'];
             var _description=deviceHaltData[i]['description'];
-            var _elaspe=0;
-            var startDateTime=new Date(_time);
-            if(i!=deviceHaltData.length-1&&_device==deviceHaltData[i+1]['deviceSerial']){
-                var stopDateTime=new Date(deviceHaltData[i+1]['time']);
-                _elaspe=((stopDateTime-startDateTime)/60000).toFixed(2);
-            }
-            else{
-                var currDate=new Date(getServerCurrTime());
-                var _year=startDateTime.getFullYear();
-                var _month=startDateTime.getMonth();
-                var _day=startDateTime.getDate();
-                var nextday=new Date(_year,_month,_day,0,0,0);
-                if(_year==currDate.getFullYear()&&_month==currDate.getMonth()&&_day==currDate.getDate()){
-                    _elaspe=((currDate-startDateTime)/60000).toFixed(2);
-                }else{
-                    _elaspe=((nextday-startDateTime)/60000+24*60).toFixed(2);
-                }
-            }
 
             deviceWorkshop.push(_workshop);
             deviceHaltElaspe.push(_elaspe);
@@ -215,13 +199,14 @@ function refreshDataTable(){
         if(deviceStates[i]=='check'){
             continue;
         }
+        // alert(deviceWorkshop[i]);
         var _row='<tr>';
         _row+='<td>'+(_index++).toString()+'</td>';
+        _row+='<td>'+deviceWorkshop[i]+'</td>';
         _row+='<td>'+deviceSerials[i]+'</td>';
         _row+='<td>'+deviceStates[i]+'</td>';
         _row+='<td>'+deviceHaltTimes[i]+'</td>';
         _row+='<td>'+deviceHaltElaspe[i]+'</td>';
-        _row+='<td>'+deviceWorkshop[i]+'</td>';
         _row+='<td>'+deviceHaltDescription[i]+'</td>';
         _row+='</tr>';
         dataTable.append(_row);
