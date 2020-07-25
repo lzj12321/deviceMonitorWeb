@@ -4,7 +4,8 @@ window.date='init';
 window.deviceSerial='init';
 window.workshop='init';
 
-var showTime=500;
+var maxTitlePerPage=15;
+var showTime=400;
 var choosedDate,choosedDevice,choosedWorkshop;
 var deviceHaltData=new Array();
 // var deviceHaltTimeData=new Array();
@@ -17,6 +18,8 @@ var deviceHaltElaspe=new Array();
 var deviceHaltDescription=new Array();
 
 var queryHaltDataFlag=true; 
+
+var currPageTitle,totalPage;
 
 var stateColor={
     'offline':'blue',
@@ -50,15 +53,19 @@ function getDeviceHaltData(){
             $('._canvas').hide(showTime);
             $('.tableDiv').hide(showTime);
             $('.pieChartCanvas').hide(showTime);
+            $('.tableButtonDiv').hide(showTime/2);
             queryHaltDataFlag=false;
             return;
         }
         deviceHaltData=$.parseJSON(data);
         for(var i=0;i<deviceHaltData.length;++i){
+            var _state=deviceHaltData[i]['deviceState'];
+            if(_state=='check'){
+                continue;
+            }
             var _elaspe=deviceHaltData[i]['elaspe'];
             var _device=deviceHaltData[i]['deviceSerial'];
             var _time=deviceHaltData[i]['time'];
-            var _state=deviceHaltData[i]['deviceState'];
             var _workshop=deviceHaltData[i]['workshop'];
             var _description=deviceHaltData[i]['description'];
 
@@ -90,21 +97,23 @@ function confirmClicked(){
     $('._canvas').hide(showTime/2);
     $('.tableDiv').hide(showTime/2);
     $('.pieChartCanvas').hide(showTime/2);
+    $('.tableButtonDiv').hide(showTime/2);
 
     getDeviceHaltData();
 
     if(!queryHaltDataFlag)
     {
-        alert("未查询到相关数据！");
+        // alert("未查询到相关数据！");
         return;
     }
 
     drawDataDiagram();
-    refreshDataTable();
+    refreshDataTable(1);
     calcPieChart();
     $('._canvas').show(showTime);
     $('.tableDiv').show(showTime);
     $('.pieChartCanvas').show(showTime);
+    $('.tableButtonDiv').show(showTime);
 }
 
 function calcPieChart(){
@@ -200,28 +209,6 @@ function initial(){
         }
     })
     confirmClicked();
-}
-
-function refreshDataTable(){
-    var dataTable=$('._dataTable');
-    var _index=1;
-    $('tr:gt(0)').remove();
-    for(var i=0;i<deviceSerials.length;++i){
-        if(deviceStates[i]=='check'){
-            continue;
-        }
-        // alert(deviceWorkshop[i]);
-        var _row='<tr>';
-        _row+='<td>'+(_index++).toString()+'</td>';
-        _row+='<td>'+deviceWorkshop[i]+'</td>';
-        _row+='<td>'+deviceSerials[i]+'</td>';
-        _row+='<td>'+deviceStates[i]+'</td>';
-        _row+='<td>'+deviceHaltTimes[i]+'</td>';
-        _row+='<td>'+deviceHaltElaspe[i]+'</td>';
-        _row+='<td>'+deviceHaltDescription[i]+'</td>';
-        _row+='</tr>';
-        dataTable.append(_row);
-    }
 }
 
 function drawDataDiagram(){
@@ -329,6 +316,49 @@ $('.deviceSelector').change(function(){
 
 $('.dateSelector').change(function(){
     confirmClicked();
+})
+
+function refreshDataTable(pageTitle){
+    totalPage=Math.ceil(deviceSerials.length/maxTitlePerPage);
+    // alert(deviceSerials.length);
+    $('.tableButtonDiv').css('display','block');
+    $('#pageTitle').text(pageTitle+'/'+totalPage);
+    var dataTable=$('._dataTable');
+    var _index=1;
+    $('tr:gt(0)').remove();
+    for(var i=(pageTitle-1)*maxTitlePerPage;i<deviceSerials.length&&i<pageTitle*maxTitlePerPage;++i){
+        // alert(deviceWorkshop[i]);
+        var _row='<tr>';
+        _row+='<td>'+(_index++).toString()+'</td>';
+        _row+='<td>'+deviceWorkshop[i]+'</td>';
+        _row+='<td>'+deviceSerials[i]+'</td>';
+        _row+='<td>'+deviceStates[i]+'</td>';
+        _row+='<td>'+deviceHaltTimes[i]+'</td>';
+        _row+='<td>'+deviceHaltElaspe[i]+'</td>';
+        _row+='<td>'+deviceHaltDescription[i]+'</td>';
+        _row+='</tr>';
+        dataTable.append(_row);
+    }
+}
+
+$('#prevPageButton').click(function(){
+    // alert('test prev');
+    currPageTitle=$('#pageTitle').text();
+    // alert(currPageTitle);
+    if(parseInt(currPageTitle)==1){
+        return;
+    }
+    refreshDataTable(parseInt(currPageTitle)-1);
+})
+
+$('#nextPageButton').click(function(){
+    // alert('test next');
+    currPageTitle=$('#pageTitle').text();
+    // alert(currPageTitle);
+    if(parseInt(currPageTitle)==totalPage){
+        return;
+    }
+    refreshDataTable(parseInt(currPageTitle)+1);
 })
 
 

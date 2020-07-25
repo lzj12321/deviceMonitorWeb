@@ -45,7 +45,7 @@ function getDeviceData(){
     $date=$_POST['date'];
     $deviceSerial=$_POST['deviceSerial'];
     $workshop=$_POST['workshop'];
-    $sql='select deviceSerial,deviceState,time,workshop,description,elaspe from deviceMonitorLog where elaspe!=-1 ';
+    $sql='select deviceSerial,deviceState,time,workshop,description,elaspe from deviceMonitorLog where elaspe!=-1 and deviceState!=\'check\'';
     if($deviceSerial!=''){
         $sql=$sql.' and deviceSerial=\''.$deviceSerial.'\' ';
     }

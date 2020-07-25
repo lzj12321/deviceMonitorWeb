@@ -2,10 +2,11 @@ h1{
     font-size: 90px;
     color: royalblue;
     text-align: center;
+    margin-top: 10px;
 }
 
 p{
-    font-size: 30px;
+    font-size: 35px;
     color: royalblue;
     text-align: left;
     font-weight: bold;
@@ -46,7 +47,14 @@ p{
 .tableDiv{
     display: none;
     position: absolute;
-    left: 300px;
+    left: 150px;
+    top: 900px;
+}
+
+.tableButtonDiv{
+    display: none;
+    position: absolute;
+    left: 1570px;
     top: 900px;
 }
 
@@ -63,6 +71,7 @@ td,tr{
 }
 
 .dateSelector{
+    border-radius: 15px;
     color: royalblue;
     margin-right: 30px;
     font-size: 30px;
@@ -71,14 +80,26 @@ td,tr{
 }
 
 select{
+    border-radius: 15px;
     color: royalblue;
     margin-right: 30px;
     font-size: 33px;
     font-weight: bold;
 }
 
-.button{
+
+#clearButton,#confirmButton{
     display: none;
+}
+
+#prevPageButton,#nextPageButton{
+    margin-bottom: 0px;
+    border-radius: 15px;
+    border-bottom: 0px;
+}
+
+.button{
+    /* display: none; */
     color: royalblue;
     margin-right: 30px;
     font-size: 30px;
@@ -90,6 +111,12 @@ select{
     margin-left: 100px;
     font-size: 30px;
     font-weight: bold;
+}
+
+#pageTitle{
+    font-size: 40px;
+    color: yellowgreen;
+    margin: 0px;
 }
 
 
