@@ -72,12 +72,20 @@ function getDeviceHaltData(){
     });
 }
 
+function clearClicked(){
+    $('.dateSelector').val('');
+    $('.workshopSelector').get(0).selectedIndex=0;
+    $('.deviceSelector').get(0).selectedIndex=0;
+    // alert('test');
+}
+
 function confirmClicked(){
     clearData();
 
     choosedDate=$('.dateSelector').val();
     choosedDevice=$('.deviceSelector').val().trim();
     choosedWorkshop=$('.workshopSelector').val().trim();
+    // alert(choosedDevice);
 
     $('._canvas').hide(showTime/2);
     $('.tableDiv').hide(showTime/2);
@@ -87,6 +95,7 @@ function confirmClicked(){
 
     if(!queryHaltDataFlag)
     {
+        alert("未查询到相关数据！");
         return;
     }
 
@@ -174,6 +183,7 @@ function calcPieChart(){
 }
 
 function initial(){
+    initializeSelector();
     getServerCurrTime();
     $('.deviceSelector').append("<option value='     '></option>");
     $('.workshopSelector').append("<option value='     '></option>");
@@ -189,6 +199,7 @@ function initial(){
             $('.workshopSelector').append('<option value='+iniData[1][i]+'>'+iniData[1][i]+'</option>');
         }
     })
+    confirmClicked();
 }
 
 function refreshDataTable(){
@@ -289,8 +300,8 @@ function getServerCurrTime(){
     return currTime;
 }
 
-function updateDeviceSelector(){
-    // alert('test');
+
+$('.workshopSelector').change(function(){
     var getDeviceUrl='./deviceMonitor.php?action=getWorkshopDevice';
     var deviceSelector=document.getElementById('deviceSelector');
     var _choosedWorkshop=$('.workshopSelector').val().trim();
@@ -308,5 +319,27 @@ function updateDeviceSelector(){
             $('#deviceSelector').append('<option value='+_devices[i]+'>'+_devices[i]+'</option>');
         }
     });
+    confirmClicked();
+})
+
+
+$('.deviceSelector').change(function(){
+    confirmClicked();
+})
+
+$('.dateSelector').change(function(){
+    confirmClicked();
+})
+
+
+function initializeSelector(){
+    var _width=$('.dateSelector').width();
+    $('.workshopSelector').width(_width);
+    $('.deviceSelector').width(_width);
+    $('.button').width(_width/2.3);
+    var confirmButtonLeft=$('#confirmButton').offset().left;
+    var _buttonHeight=$('#confirmButton').offset().top;
+    var _left=confirmButtonLeft+_width/2;
+    $('#clearButton').offset({top:_buttonHeight,left:_left});
 }
 

@@ -8,12 +8,15 @@
 
         <h1>Device Monitor</h1>
         <div class='selectorDiv'>
-            <input type="date" class="dateSelector">
-            <select class='workshopSelector' id='workshopSelector'></select>
-            <select class='deviceSelector' id='deviceSelector'></select>
-            <input type="button" class='confirmButton' value="Confirm" onclick="confirmClicked()">
+            <p class='title'>日期</p>
+            <input type="date" class="dateSelector"><br/>
+            <p class='title'>车间编号</p>
+            <select class='workshopSelector' id='workshopSelector'></select><br/>
+            <p class='title'>设备编号</p>
+            <select class='deviceSelector' id='deviceSelector'></select><br/><br/><br/>
+            <input type="button" class='button' id='confirmButton' value="Confirm" onclick="confirmClicked()">
+            <input type="button" class='button' id='clearButton' value="Clear" onclick="clearClicked()">
         </div>
-        <br/>
         <div class='canvasDiv'>
             <canvas class='_canvas' id='_canvas' width="700" height="600"></canvas>
             <canvas class='pieChartCanvas' id='pieChartCanvas' width="800" height="600"></canvas>
@@ -38,8 +41,5 @@
         <script type="text/javascript" src='./deviceMonitor.js'></script>
         <script>
             window.onload=initial();
-            $('.workshopSelector').on("change",function(){
-                updateDeviceSelector();
-            })
         </script>
 </html>

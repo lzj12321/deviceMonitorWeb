@@ -4,25 +4,27 @@ h1{
     text-align: center;
 }
 
-.canvasDiv{
-    /* visibility: hidden; */
+p{
+    font-size: 30px;
+    color: royalblue;
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
+
 ._canvas{
-    /* border:darkblue 5px solid; */
     display: none;
     border-bottom:darkblue 5px solid;
     border-left: darkblue 5px solid;
-    margin-left: 100px;
+    margin-left: 50px;
     position: absolute;
-    top: 300px;
+    top: 200px;
 }
 
 .pieChartCanvas{
-    /* border: darkblue 5px solid; */
     display: none;
-    border-radius: 20px;
-    margin-left: 900px;
-    top: 300px;
+    margin-left: 700px;
+    top: 200px;
     position: absolute;
 }
 
@@ -31,25 +33,21 @@ h1{
     font-weight: bold;
     font-size: 30px;
     border-collapse: collapse;
+    border-radius: 20px;
 }
 
 .selectorDiv{
     position: absolute;
     left: 620px;
-    top:200px
-    /* align-items: center; */
-    /* align-content: center; */
-    /* text-align: center; */
-    /* -moz-box-align: center; */
-    /* -webkit-box-align: center; */
-    /* margin: 0 auto; */
+    top:300px;
+    margin-left: 950px;
 }
 
 .tableDiv{
     display: none;
     position: absolute;
     left: 300px;
-    top: 950px;
+    top: 900px;
 }
 
 th{
@@ -65,23 +63,29 @@ td,tr{
 }
 
 .dateSelector{
+    color: royalblue;
     margin-right: 30px;
     font-size: 30px;
     font-weight: bold;
+    width: auto;
 }
 
 select{
+    color: royalblue;
     margin-right: 30px;
     font-size: 33px;
     font-weight: bold;
-    width: 140px;
 }
 
-.confirmButton{
+.button{
+    display: none;
+    color: royalblue;
     margin-right: 30px;
     font-size: 30px;
     font-weight: bold;
+    text-align: center;
 }
+
 .selector{
     margin-left: 100px;
     font-size: 30px;
