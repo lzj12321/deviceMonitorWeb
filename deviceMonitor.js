@@ -165,16 +165,13 @@ function calcPieChart(){
         // x = x0 + Math.cos(textAngle*Math.PI/180)*(radius+20);//文字放的X轴
         // y = y0 + Math.sin(textAngle*Math.PI/180)*(radius+20);//文字放的Y轴
         //如果文字在圆形的左侧，那么让文字 对齐方式为 文字结尾对齐当前坐标。
-        if( textAngle > 90 && textAngle < 270 ){
-            ctx.textAlign = 'end';
-        }
+        // if( textAngle > 90 && textAngle < 270 ){
+        //     ctx.textAlign = 'end';
+        // }
+        ctx.textAlign = 'end';
         ctx.fillStyle = stateColor[data[i].state];
         var text = data[i].state + " "+ (data[i].value*100).toFixed(2)+"%";
         ctx.font='30px Arial';
-        // if(data[i].state=='stop'){
-        //     // alert(x);
-        //     alert(x0);
-        // }
         ctx.fillText(text,x,y);
         y=y+50;
         ctx.beginPath();
@@ -250,6 +247,10 @@ function drawDataDiagram(){
     for(var item in stateTime){
         var _d=parseInt(stateTime[item]*_rate);
         _deviceHaltData[item]=_d;
+        if(_deviceHaltData[item]<30)
+        {
+            _deviceHaltData[item]=30;
+        }
     }
     var gap=parseInt((_coorW-10)/dataSize);
     var _width=gap/2;

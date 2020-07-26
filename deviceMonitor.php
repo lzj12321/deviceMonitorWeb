@@ -111,7 +111,7 @@ function getWorkshopDevice(){
 }
 
 function execSql($sql){
-    $mysqli = new mysqli('127.0.0.1','root','123456','robot');
+    $mysqli = new mysqli('127.0.0.1','lzj','123456','robot');
     $result = $mysqli->query($sql);
     $mysqli->close();
     return $result;
